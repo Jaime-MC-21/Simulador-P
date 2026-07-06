@@ -19,7 +19,7 @@
   --bg-control: #f0eee6;
   --text-main: #2d3748;
   --text-muted: #718096;
-  --accent-main: #142d5a;   /* Azul UNMSM inspirado en tu doc */
+  --accent-main: #142d5a;
   --accent-hover: #1e458a;
   --accent-blue: #4a7a8c;
   --accent-green: #5a8c6a;
@@ -52,7 +52,7 @@ body {
   color: var(--text-main);
   font-family: var(--font-ui);
   margin: 0;
-  padding: 20px;
+  padding: 16px;
   display: flex;
   justify-content: center;
   min-height: 100vh;
@@ -67,8 +67,8 @@ h1, h2, h3 { font-family: var(--font-math); font-weight: 600; }
   max-width: 860px;
 }
 
-.header { text-align: center; margin-bottom: 2.5rem; }
-.header h1 { font-size: 2.2rem; color: var(--accent-main); margin-bottom: 0.5rem; }
+.header { text-align: center; margin-bottom: 2.5rem; padding-top: 1rem; }
+.header h1 { font-size: clamp(1.8rem, 4vw, 2.4rem); color: var(--accent-main); margin-bottom: 0.5rem; }
 .header p { color: var(--text-muted); font-size: 1.1rem; margin: 0; font-family: var(--font-math); }
 
 .tabs-container {
@@ -79,6 +79,7 @@ h1, h2, h3 { font-family: var(--font-math); font-weight: 600; }
   padding: 10px 20px; border-radius: 999px; font-family: var(--font-ui); font-size: 15px;
   font-weight: 600; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
   transition: all 0.3s ease;
+  min-height: 44px; /* A11y touch target */
 }
 .tab:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); color: var(--text-main); }
 .tab.active {
@@ -92,19 +93,20 @@ h1, h2, h3 { font-family: var(--font-math); font-weight: 600; }
 @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
 .card {
-  background: var(--bg-card); border-radius: 24px; padding: 2rem;
+  background: var(--bg-card); border-radius: 24px; padding: clamp(1.2rem, 3vw, 2rem);
   box-shadow: var(--shadow-soft); border: 1px solid var(--border-soft); margin-bottom: 1.5rem;
 }
 
-.controls-layout { display: flex; flex-wrap: wrap; gap: 24px; margin-bottom: 2rem; }
-.ctrl-item { flex: 1 1 min-width(200px, 100%); display: flex; flex-direction: column; gap: 8px; }
+.controls-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 2rem; }
+.ctrl-item { display: flex; flex-direction: column; gap: 8px; }
 .ctrl-header { display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: var(--text-muted); font-weight: 600; }
 .ctrl-val { color: var(--accent-main); font-family: var(--font-math); font-size: 16px; font-weight: 600; background: var(--bg-control); padding: 2px 10px; border-radius: 12px; }
 
-input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; height: 32px; /* Touch target */ margin: -6px 0;}
 input[type=range]:focus { outline: none; }
+input[type=range]:focus-visible::-webkit-slider-thumb { outline: 3px solid var(--accent-hover); outline-offset: 2px; }
 input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 8px; cursor: pointer; background: var(--bg-control); border-radius: 8px; }
-input[type=range]::-webkit-slider-thumb { height: 20px; width: 20px; border-radius: 50%; background: var(--accent-main); cursor: pointer; -webkit-appearance: none; margin-top: -6px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s; }
+input[type=range]::-webkit-slider-thumb { height: 22px; width: 22px; border-radius: 50%; background: var(--accent-main); cursor: pointer; -webkit-appearance: none; margin-top: -7px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s; }
 input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
 
 .metrics-bar { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 2rem; justify-content: center; }
@@ -118,25 +120,25 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
   background-size: 20px 20px; border: 1px solid var(--border-soft); box-shadow: inset 0 2px 10px rgba(0,0,0,0.02);
 }
 .canvas-title { position: absolute; top: 15px; left: 20px; font-family: var(--font-math); font-size: 15px; color: var(--text-muted); font-style: italic; pointer-events: none; }
-canvas { width: 100%; display: block; }
+canvas { width: 100%; display: block; touch-action: none; }
 
-.btn-row { display: flex; gap: 12px; margin-bottom: 1.5rem; justify-content: center; }
+.btn-row { display: flex; gap: 12px; margin-bottom: 1.5rem; justify-content: center; flex-wrap: wrap; }
 button.action-btn {
   padding: 10px 24px; font-size: 15px; border-radius: 12px; border: none; cursor: pointer;
   font-family: var(--font-ui); font-weight: 600; background: var(--bg-control); color: var(--text-main);
-  transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+  transition: all 0.2s; display: flex; align-items: center; gap: 8px; min-height: 44px;
 }
 button.action-btn:hover { background: #e2e8f0; transform: translateY(-1px); }
 .dark-mode button.action-btn:hover { background: #334155; }
 button.action-btn.primary { background: var(--accent-main); color: white; box-shadow: 0 4px 12px rgba(20, 45, 90, 0.3); }
 button.action-btn.primary:hover { background: var(--accent-hover); }
 
-.legend-row { display: flex; gap: 20px; justify-content: center; margin-top: 15px; font-size: 13px; font-weight: 600; color: var(--text-muted); }
+.legend-row { display: flex; gap: 20px; justify-content: center; margin-top: 15px; font-size: 13px; font-weight: 600; color: var(--text-muted); flex-wrap: wrap;}
 .leg-item { display: flex; align-items: center; gap: 6px; }
 .leg-line { width: 16px; height: 3px; border-radius: 2px; }
 .leg-dot { width: 10px; height: 10px; border-radius: 50%; }
 
-.explanation { font-family: var(--font-math); font-size: 1.05rem; color: var(--text-muted); text-align: center; margin-top: 1.5rem; padding: 0 20px; }
+.explanation { font-family: var(--font-math); font-size: 1.05rem; color: var(--text-muted); text-align: center; margin-top: 1.5rem; padding: 0 10px; }
 .math-block { background: var(--bg-control); padding: 10px; border-radius: 8px; font-family: var(--font-math); color: var(--accent-main); margin-top: 10px; display: inline-block;}
 </style>
 </head>
@@ -148,28 +150,28 @@ button.action-btn.primary:hover { background: var(--accent-hover); }
     <p>Simulación para V(x) = 0 sobre el eje x</p>
   </div>
 
-  <div class="tabs-container">
-    <button class="tab active" onclick="switchTab(0)">Estado Espacial ψ(x)</button>
-    <button class="tab" onclick="switchTab(1)">Densidad |ψ|²</button>
-    <button class="tab" onclick="switchTab(2)">Evolución Temporal</button>
-    <button class="tab" onclick="switchTab(3)">Paquete de Ondas</button>
+  <div class="tabs-container" role="tablist">
+    <button class="tab active" role="tab" aria-selected="true" onclick="switchTab(0)">Estado Espacial ψ(x)</button>
+    <button class="tab" role="tab" aria-selected="false" onclick="switchTab(1)">Densidad |ψ|²</button>
+    <button class="tab" role="tab" aria-selected="false" onclick="switchTab(2)">Evolución Temporal</button>
+    <button class="tab" role="tab" aria-selected="false" onclick="switchTab(3)">Paquete de Ondas</button>
   </div>
 
   <!-- ══════ TAB 0: FUNCIÓN DE ONDA ESPACIAL ══════ -->
-  <div class="section active" id="sec0">
+  <div class="section active" id="sec0" role="tabpanel">
     <div class="card">
       <div class="controls-layout">
         <div class="ctrl-item">
-          <div class="ctrl-header">Número de onda (k) <span class="ctrl-val" id="w-k-v">2.0</span></div>
-          <input type="range" min="0.5" max="6" step="0.1" value="2.0" id="w-k">
+          <label class="ctrl-header" for="w-k">Número de onda (k) <span class="ctrl-val" id="w-k-v">2.0</span></label>
+          <input type="range" min="0.5" max="6" step="0.1" value="2.0" id="w-k" aria-label="Ajustar número de onda k">
         </div>
         <div class="ctrl-item">
-          <div class="ctrl-header">Coeficiente C₁ (Real) <span class="ctrl-val" id="w-c1-v">1.0</span></div>
-          <input type="range" min="-1" max="1" step="0.1" value="1" id="w-c1">
+          <label class="ctrl-header" for="w-c1">Coeficiente C₁ (Real) <span class="ctrl-val" id="w-c1-v">1.0</span></label>
+          <input type="range" min="-1" max="1" step="0.1" value="1" id="w-c1" aria-label="Ajustar coeficiente real C1">
         </div>
         <div class="ctrl-item">
-          <div class="ctrl-header">Coeficiente C₂ (Imag) <span class="ctrl-val" id="w-c2-v">0.0</span></div>
-          <input type="range" min="-1" max="1" step="0.1" value="0" id="w-c2">
+          <label class="ctrl-header" for="w-c2">Coeficiente C₂ (Imag) <span class="ctrl-val" id="w-c2-v">0.0</span></label>
+          <input type="range" min="-1" max="1" step="0.1" value="0" id="w-c2" aria-label="Ajustar coeficiente imaginario C2">
         </div>
       </div>
       
@@ -196,20 +198,20 @@ button.action-btn.primary:hover { background: var(--accent-hover); }
   </div>
 
   <!-- ══════ TAB 1: DENSIDAD DE PROBABILIDAD ══════ -->
-  <div class="section" id="sec1">
+  <div class="section" id="sec1" role="tabpanel">
     <div class="card">
       <div class="controls-layout">
         <div class="ctrl-item">
-          <div class="ctrl-header">Número de onda (k) <span class="ctrl-val" id="d-k-v">2.0</span></div>
-          <input type="range" min="0.5" max="6" step="0.1" value="2.0" id="d-k">
+          <label class="ctrl-header" for="d-k">Número de onda (k) <span class="ctrl-val" id="d-k-v">2.0</span></label>
+          <input type="range" min="0.5" max="6" step="0.1" value="2.0" id="d-k" aria-label="Ajustar número de onda k">
         </div>
         <div class="ctrl-item">
-          <div class="ctrl-header">Coeficiente C₁ (Real) <span class="ctrl-val" id="d-c1-v">1.0</span></div>
-          <input type="range" min="-1" max="1" step="0.1" value="1" id="d-c1">
+          <label class="ctrl-header" for="d-c1">Coeficiente C₁ (Real) <span class="ctrl-val" id="d-c1-v">1.0</span></label>
+          <input type="range" min="-1" max="1" step="0.1" value="1" id="d-c1" aria-label="Ajustar coeficiente real C1">
         </div>
         <div class="ctrl-item">
-          <div class="ctrl-header">Coeficiente C₂ (Imag) <span class="ctrl-val" id="d-c2-v">1.0</span></div>
-          <input type="range" min="-1" max="1" step="0.1" value="1" id="d-c2">
+          <label class="ctrl-header" for="d-c2">Coeficiente C₂ (Imag) <span class="ctrl-val" id="d-c2-v">1.0</span></label>
+          <input type="range" min="-1" max="1" step="0.1" value="1" id="d-c2" aria-label="Ajustar coeficiente imaginario C2">
         </div>
       </div>
 
@@ -222,34 +224,34 @@ button.action-btn.primary:hover { background: var(--accent-hover); }
         <div class="leg-item"><div class="leg-dot" style="background:var(--accent-green)"></div> <span>|ψ(x)|² = |C₁cos(kx) + iC₂sin(kx)|²</span></div>
       </div>
       
-      <div class="explanation" id="d-info"></div>
+      <div class="explanation" id="d-info" aria-live="polite"></div>
     </div>
   </div>
 
   <!-- ══════ TAB 2: EVOLUCIÓN TEMPORAL ══════ -->
-  <div class="section" id="sec2">
+  <div class="section" id="sec2" role="tabpanel">
     <div class="card">
       <div class="controls-layout">
         <div class="ctrl-item">
-          <div class="ctrl-header">Número de onda (k) <span class="ctrl-val" id="t-k-v">2.0</span></div>
-          <input type="range" min="0.5" max="6" step="0.1" value="2.0" id="t-k">
+          <label class="ctrl-header" for="t-k">Número de onda (k) <span class="ctrl-val" id="t-k-v">2.0</span></label>
+          <input type="range" min="0.5" max="6" step="0.1" value="2.0" id="t-k" aria-label="Ajustar número de onda k">
         </div>
         <div class="ctrl-item">
-          <div class="ctrl-header">C₁ (Real) <span class="ctrl-val" id="t-c1-v">1.0</span></div>
-          <input type="range" min="-1" max="1" step="0.1" value="1" id="t-c1">
+          <label class="ctrl-header" for="t-c1">C₁ (Real) <span class="ctrl-val" id="t-c1-v">1.0</span></label>
+          <input type="range" min="-1" max="1" step="0.1" value="1" id="t-c1" aria-label="Ajustar coeficiente real C1">
         </div>
         <div class="ctrl-item">
-          <div class="ctrl-header">C₂ (Imag) <span class="ctrl-val" id="t-c2-v">1.0</span></div>
-          <input type="range" min="-1" max="1" step="0.1" value="1" id="t-c2">
+          <label class="ctrl-header" for="t-c2">C₂ (Imag) <span class="ctrl-val" id="t-c2-v">1.0</span></label>
+          <input type="range" min="-1" max="1" step="0.1" value="1" id="t-c2" aria-label="Ajustar coeficiente imaginario C2">
         </div>
         <div class="ctrl-item">
-          <div class="ctrl-header">Velocidad Anim. <span class="ctrl-val" id="t-sp-v">1×</span></div>
-          <input type="range" min="0.2" max="3" step="0.2" value="1" id="t-sp">
+          <label class="ctrl-header" for="t-sp">Velocidad Anim. <span class="ctrl-val" id="t-sp-v">1.0×</span></label>
+          <input type="range" min="0.2" max="3" step="0.2" value="1" id="t-sp" aria-label="Ajustar velocidad de animación">
         </div>
       </div>
       
       <div class="btn-row">
-        <button class="action-btn primary" id="t-play" onclick="toggleAnim(2)">
+        <button class="action-btn primary" id="t-play" aria-label="Pausar o reanudar animación temporal" onclick="toggleAnim(2)">
           <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M14 19V5h4v14h-4zm-8 0V5h4v14H6z"/></svg> Pausar
         </button>
       </div>
@@ -275,28 +277,28 @@ button.action-btn.primary:hover { background: var(--accent-hover); }
   </div>
 
   <!-- ══════ TAB 3: PAQUETE DE ONDAS ══════ -->
-  <div class="section" id="sec3">
+  <div class="section" id="sec3" role="tabpanel">
     <div class="card">
       <div class="controls-layout">
         <div class="ctrl-item">
-          <div class="ctrl-header">Momento central (k₀) <span class="ctrl-val" id="p-k-v">4.0</span></div>
-          <input type="range" min="1" max="8" step="0.5" value="4.0" id="p-k">
+          <label class="ctrl-header" for="p-k">Momento central (k₀) <span class="ctrl-val" id="p-k-v">4.0</span></label>
+          <input type="range" min="1" max="8" step="0.5" value="4.0" id="p-k" aria-label="Ajustar momento central">
         </div>
         <div class="ctrl-item">
-          <div class="ctrl-header">Dispersión Inicial (σ) <span class="ctrl-val" id="p-sig-v">1.0</span></div>
-          <input type="range" min="0.5" max="3" step="0.1" value="1.0" id="p-sig">
+          <label class="ctrl-header" for="p-sig">Dispersión Inicial (σ) <span class="ctrl-val" id="p-sig-v">1.0</span></label>
+          <input type="range" min="0.5" max="3" step="0.1" value="1.0" id="p-sig" aria-label="Ajustar dispersión inicial">
         </div>
         <div class="ctrl-item">
-          <div class="ctrl-header">Velocidad Anim. <span class="ctrl-val" id="p-sp-v">1×</span></div>
-          <input type="range" min="0.5" max="3" step="0.5" value="1" id="p-sp">
+          <label class="ctrl-header" for="p-sp">Velocidad Anim. <span class="ctrl-val" id="p-sp-v">1.0×</span></label>
+          <input type="range" min="0.5" max="3" step="0.5" value="1" id="p-sp" aria-label="Ajustar velocidad del paquete">
         </div>
       </div>
       
       <div class="btn-row">
-        <button class="action-btn primary" id="p-play" onclick="toggleAnim(3)">
+        <button class="action-btn primary" id="p-play" aria-label="Pausar o reanudar paquete de ondas" onclick="toggleAnim(3)">
           <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M14 19V5h4v14h-4zm-8 0V5h4v14H6z"/></svg> Pausar
         </button>
-        <button class="action-btn" onclick="resetPacket()">
+        <button class="action-btn" aria-label="Reiniciar tiempo a cero" onclick="resetPacket()">
           <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Reiniciar t=0
         </button>
       </div>
@@ -317,7 +319,7 @@ button.action-btn.primary:hover { background: var(--accent-hover); }
       </div>
       
       <div class="explanation">
-        Una partícula libre real está localizada en el espacio sumando infinitas ondas planas (paquete de ondas). Con el tiempo, debido a que <i>E</i> ∝ <i>k</i>², cada onda viaja a distinta velocidad, haciendo que el paquete <b>se disperse y ensanche</b> en el espacio libre.
+        Una partícula libre localizada se forma sumando infinitas ondas planas (paquete de ondas). Con el tiempo, dado que <i>E</i> ∝ <i>k</i>², cada onda viaja a distinta velocidad, haciendo que el paquete <b>se disperse y ensanche</b>.
       </div>
     </div>
   </div>
@@ -328,11 +330,14 @@ let currentTab = 0;
 let animId = null, animT = 0, animRunning = true;
 let packetT = 0, packetRunning = true;
 
-// Variables de sincronización simple
+// Variables de sincronización entre pestañas
 function syncInputs(sourceId, targetIds, val) {
   targetIds.forEach(id => {
     const el = document.getElementById(id);
-    if(el) { el.value = val; document.getElementById(id+'-v').textContent = Number(val).toFixed(1); }
+    if(el) { 
+      el.value = val; 
+      document.getElementById(id+'-v').textContent = Number(val).toFixed(1); 
+    }
   });
 }
 
@@ -354,36 +359,45 @@ function setupSync() {
 }
 
 function switchTab(i) {
-  document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
-  document.querySelectorAll('.section').forEach((s,j)=>s.classList.toggle('active',j===i));
+  const tabs = document.querySelectorAll('.tab');
+  tabs.forEach((t, j) => {
+    t.classList.toggle('active', j === i);
+    t.setAttribute('aria-selected', j === i);
+  });
+  
+  document.querySelectorAll('.section').forEach((s, j) => s.classList.toggle('active', j === i));
   currentTab = i;
   
-  // SOLUCIÓN: Detener siempre el bucle del tab anterior antes de arrancar el nuevo
+  // Detener el motor anterior
   stopAnim();
   
-  if(i===2 && animRunning) startAnim(2);
-  else if(i===3 && packetRunning) startAnim(3);
+  // Reanudar lógica de la pestaña actual de forma segura
+  if(i === 2 && animRunning) startAnim(2);
+  else if(i === 3 && packetRunning) startAnim(3);
   
+  // Timeout corto para permitir al DOM hacer su "display: block" antes del repintado de canvas
   setTimeout(renderAll, 10);
 }
 
-function dpr(){return window.devicePixelRatio||1}
+function dpr(){ return window.devicePixelRatio || 1; }
 
-function initCvs(id,h){
-  const cvs=document.getElementById(id);
-  const w=cvs.parentElement.getBoundingClientRect().width; 
-  const d=dpr();
-  cvs.width=w*d; cvs.height=h*d;
-  cvs.style.width=w+'px'; cvs.style.height=h+'px';
-  const ctx=cvs.getContext('2d'); 
-  ctx.scale(d,d);
-  return {ctx,w,h};
+function initCvs(id, h){
+  const cvs = document.getElementById(id);
+  const w = cvs.parentElement.getBoundingClientRect().width; 
+  const d = dpr();
+  cvs.width = w * d; 
+  cvs.height = h * d;
+  cvs.style.width = w + 'px'; 
+  cvs.style.height = h + 'px';
+  const ctx = cvs.getContext('2d'); 
+  ctx.scale(d, d);
+  return {ctx, w, h};
 }
 
-function dark(){return window.matchMedia('(prefers-color-scheme:dark)').matches}
+function dark(){ return window.matchMedia('(prefers-color-scheme:dark)').matches; }
 
 function themeColors(){
-  const d=dark();
+  const d = dark();
   return {
     text: d ? '#e2e8f0' : '#2d3748',
     muted: d ? '#a0aec0' : '#718096',
@@ -396,22 +410,23 @@ function themeColors(){
   };
 }
 
-// Dibujar ejes para dominio infinito
 function drawInfiniteAxes(ctx, cx0, cw, cy0, ch, T) {
-  ctx.strokeStyle=T.grid; ctx.lineWidth=1;
-  [-0.75, -0.5, -0.25, 0.25, 0.5, 0.75].forEach(v=>{
-    const y=cy0-v*ch*0.44;
-    ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(cx0+cw+50,y);ctx.stroke();
+  ctx.strokeStyle = T.grid; 
+  ctx.lineWidth = 1;
+  [-0.75, -0.5, -0.25, 0.25, 0.5, 0.75].forEach(v => {
+    const y = cy0 - v * ch * 0.44;
+    ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(cx0+cw+50,y); ctx.stroke();
   });
-  // Eje X Central
-  ctx.strokeStyle=T.axis; ctx.lineWidth=1.5;
-  ctx.beginPath();ctx.moveTo(0,cy0);ctx.lineTo(cx0+cw+50,cy0);ctx.stroke();
   
-  // Eje Y central (x=0)
-  ctx.beginPath();ctx.moveTo(cx0+cw/2, cy0-ch/2);ctx.lineTo(cx0+cw/2, cy0+ch/2);ctx.stroke();
+  ctx.strokeStyle = T.axis; 
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(0,cy0); ctx.lineTo(cx0+cw+50,cy0); ctx.stroke();
   
-  ctx.fillStyle=T.muted; ctx.font='13px "Nunito", sans-serif';
-  ctx.textAlign='center';
+  ctx.beginPath(); ctx.moveTo(cx0+cw/2, cy0-ch/2); ctx.lineTo(cx0+cw/2, cy0+ch/2); ctx.stroke();
+  
+  ctx.fillStyle = T.muted; 
+  ctx.font = '13px "Nunito", sans-serif';
+  ctx.textAlign = 'center';
   ctx.fillText('x = 0', cx0+cw/2, cy0+ch/2 - 5);
 }
 
@@ -421,50 +436,48 @@ function drawWave(){
   const c1 = +document.getElementById('w-c1').value;
   const c2 = +document.getElementById('w-c2').value;
   
-  document.getElementById('w-k-v').textContent=k.toFixed(1);
-  document.getElementById('w-c1-v').textContent=c1.toFixed(1);
-  document.getElementById('w-c2-v').textContent=c2.toFixed(1);
+  document.getElementById('w-k-v').textContent = k.toFixed(1);
+  document.getElementById('w-c1-v').textContent = c1.toFixed(1);
+  document.getElementById('w-c2-v').textContent = c2.toFixed(1);
   
-  const m = 1; // Masa unitaria referencial
+  const m = 1; 
   const E = (k*k)/(2*m);
-  document.getElementById('w-en').textContent=E.toFixed(2)+' u.a.';
-  document.getElementById('w-p').textContent=(k).toFixed(2)+' ℏ';
-  document.getElementById('w-lam').textContent=(2*Math.PI/k).toFixed(2);
+  document.getElementById('w-en').textContent = E.toFixed(2) + ' u.a.';
+  document.getElementById('w-p').textContent = k.toFixed(2) + ' ℏ';
+  document.getElementById('w-lam').textContent = (2*Math.PI/k).toFixed(2);
 
-  const {ctx,w,h}=initCvs('wc',280);
-  const T=themeColors();
-  const pad={t:50,b:40,l:20,r:20};
-  const cw=w-pad.l-pad.r, ch=h-pad.t-pad.b;
-  const cx0=pad.l, cy0=pad.t+ch/2;
+  const {ctx, w, h} = initCvs('wc', 280);
+  const T = themeColors();
+  const pad = {t:50, b:40, l:20, r:20};
+  const cw = w - pad.l - pad.r, ch = h - pad.t - pad.b;
+  const cx0 = pad.l, cy0 = pad.t + ch/2;
   
   ctx.clearRect(0,0,w,h);
   drawInfiniteAxes(ctx, cx0, cw, cy0, ch, T);
 
-  const N=400;
-  const L = 10; // Rango espacial [-L, L]
+  const N = 400;
+  const L = 10; 
   
-  // Dibujar Parte Imaginaria (Seno)
   if(c2 !== 0) {
-    ctx.beginPath(); ctx.strokeStyle=T.red; ctx.lineWidth=2.5; ctx.globalAlpha=0.8;
-    for(let i=0;i<=N;i++){
+    ctx.beginPath(); ctx.strokeStyle = T.red; ctx.lineWidth = 2.5; ctx.globalAlpha = 0.8;
+    for(let i=0; i<=N; i++){
       const x_px = cx0 + (i/N)*cw;
       const x_phys = -L + (i/N)*(2*L);
       const val = c2 * Math.sin(k * x_phys);
       const py = cy0 - val * (ch*0.4);
-      i===0 ? ctx.moveTo(x_px,py) : ctx.lineTo(x_px,py);
+      i===0 ? ctx.moveTo(x_px, py) : ctx.lineTo(x_px, py);
     }
     ctx.stroke();
   }
 
-  // Dibujar Parte Real (Coseno)
   if(c1 !== 0) {
-    ctx.beginPath(); ctx.strokeStyle=T.blue; ctx.lineWidth=3; ctx.globalAlpha=1;
-    for(let i=0;i<=N;i++){
+    ctx.beginPath(); ctx.strokeStyle = T.blue; ctx.lineWidth = 3; ctx.globalAlpha = 1;
+    for(let i=0; i<=N; i++){
       const x_px = cx0 + (i/N)*cw;
       const x_phys = -L + (i/N)*(2*L);
       const val = c1 * Math.cos(k * x_phys);
       const py = cy0 - val * (ch*0.4);
-      i===0 ? ctx.moveTo(x_px,py) : ctx.lineTo(x_px,py);
+      i===0 ? ctx.moveTo(x_px, py) : ctx.lineTo(x_px, py);
     }
     ctx.stroke();
   }
@@ -476,56 +489,54 @@ function drawDensity(){
   const c1 = +document.getElementById('d-c1').value;
   const c2 = +document.getElementById('d-c2').value;
   
-  const {ctx,w,h}=initCvs('dc',280);
-  const T=themeColors();
-  const pad={t:50,b:40,l:20,r:20};
-  const cw=w-pad.l-pad.r, ch=h-pad.t-pad.b;
-  const cx0=pad.l, cy0=pad.t+ch;
+  const {ctx, w, h} = initCvs('dc', 280);
+  const T = themeColors();
+  const pad = {t:50, b:40, l:20, r:20};
+  const cw = w - pad.l - pad.r, ch = h - pad.t - pad.b;
+  const cx0 = pad.l, cy0 = pad.t + ch;
   
   ctx.clearRect(0,0,w,h);
   
-  // Grilla base en Y=0
-  ctx.strokeStyle=T.axis; ctx.lineWidth=1.5;
-  ctx.beginPath();ctx.moveTo(0,cy0);ctx.lineTo(w,cy0);ctx.stroke();
-  // Eje Central
-  ctx.beginPath();ctx.moveTo(cx0+cw/2, pad.t);ctx.lineTo(cx0+cw/2, cy0);ctx.stroke();
+  ctx.strokeStyle = T.axis; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(0,cy0); ctx.lineTo(w,cy0); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx0+cw/2, pad.t); ctx.lineTo(cx0+cw/2, cy0); ctx.stroke();
 
-  const N=400;
+  const N = 400;
   const L = 10;
-  const maxVal = 1.0; // FIX: El máximo valor de |c1*cos|^2 + |c2*sin|^2 con c1,c2 en [-1, 1] es exactamente 1.0
+  const maxVal = 1.0; 
   
-  ctx.beginPath(); ctx.strokeStyle=T.green; ctx.lineWidth=3;
-  ctx.fillStyle=T.green; ctx.globalAlpha=0.15;
+  ctx.beginPath(); ctx.strokeStyle = T.green; ctx.lineWidth = 3;
+  ctx.fillStyle = T.green; ctx.globalAlpha = 0.15;
   
   const pts = [];
-  for(let i=0;i<=N;i++){
+  for(let i=0; i<=N; i++){
     const x_px = cx0 + (i/N)*cw;
     const x_phys = -L + (i/N)*(2*L);
     const re = c1 * Math.cos(k * x_phys);
     const im = c2 * Math.sin(k * x_phys);
-    const dens = re*re + im*im; // |psi|^2
+    const dens = re*re + im*im; 
     const py = cy0 - (dens/maxVal)*(ch*0.8);
     pts.push({x: x_px, y: py});
   }
   
-  // Relleno
   ctx.beginPath();
-  pts.forEach((p,i)=> i===0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+  pts.forEach((p,i) => i===0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
   ctx.lineTo(cx0+cw, cy0); ctx.lineTo(cx0, cy0); ctx.closePath(); ctx.fill();
   
-  // Linea
-  ctx.globalAlpha=1; ctx.beginPath();
-  pts.forEach((p,i)=> i===0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+  ctx.globalAlpha = 1; ctx.beginPath();
+  pts.forEach((p,i) => i===0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
   ctx.stroke();
 
-  // Texto explicativo dinámico
+  // Texto explicativo dinámico pulido
   const infoEl = document.getElementById('d-info');
-  if(Math.abs(Math.abs(c1) - Math.abs(c2)) < 0.05 && Math.abs(c1) > 0) {
-    infoEl.innerHTML = `Con |C₁| = |C₂|, la densidad es una línea recta (constante). Esto representa una <b>onda plana pura viajera</b> (e<sup>±ikx</sup>). ¡La partícula tiene la misma probabilidad de estar en cualquier parte!`;
+  if (c1 === 0 && c2 === 0) {
+    infoEl.innerHTML = `Ambos coeficientes son cero. No hay partícula (estado nulo).`;
+  } else if (Math.abs(Math.abs(c1) - Math.abs(c2)) < 0.05 && Math.abs(c1) > 0) {
+    infoEl.innerHTML = `Con |C₁| = |C₂|, la densidad es una línea recta constante en el espacio. Esto representa una <b>onda plana viajera pura</b> (e<sup>±ikx</sup>). ¡Misma probabilidad de hallar la partícula en cualquier parte!`;
   } else if (c1 === 0 || c2 === 0) {
-    infoEl.innerHTML = `Con un coeficiente en cero, se forma una <b>onda estacionaria pura</b>. La densidad de probabilidad oscila y existen nodos donde la partícula nunca estará.`;
+    infoEl.innerHTML = `Con un coeficiente en cero, se forma una <b>onda estacionaria pura</b>. La densidad de probabilidad oscila intensamente y existen nodos donde la probabilidad de encontrarla es nula.`;
   } else {
-    infoEl.innerHTML = `Combinación de onda viajera y estacionaria. La densidad oscila pero nunca llega a cero absoluto.`;
+    infoEl.innerHTML = `Combinación de onda viajera y estacionaria. La densidad de probabilidad oscila pero nunca llega a un cero absoluto en sus valles.`;
   }
 }
 
@@ -535,41 +546,37 @@ function drawTemporal(t) {
   const c1 = +document.getElementById('t-c1').value;
   const c2 = +document.getElementById('t-c2').value;
   
-  document.getElementById('t-tv').textContent=t.toFixed(2);
+  document.getElementById('t-tv').textContent = t.toFixed(2);
   
   const m = 1;
-  const omega = (k*k)/(2*m); // E/hbar
+  const omega = (k*k)/(2*m); 
   
-  const {ctx,w,h}=initCvs('tc',280);
-  const T=themeColors();
-  const pad={t:40,b:40,l:20,r:20};
-  const cw=w-pad.l-pad.r, ch=h-pad.t-pad.b;
-  const cx0=pad.l, cy0=pad.t+ch/2;
+  const {ctx, w, h} = initCvs('tc', 280);
+  const T = themeColors();
+  const pad = {t:40, b:40, l:20, r:20};
+  const cw = w - pad.l - pad.r, ch = h - pad.t - pad.b;
+  const cx0 = pad.l, cy0 = pad.t + ch/2;
   
   ctx.clearRect(0,0,w,h);
   drawInfiniteAxes(ctx, cx0, cw, cy0, ch, T);
   
-  const N=400;
+  const N = 400;
   const L = 10;
   
-  // Dibujar Envolvente (Constante en el tiempo)
-  ctx.beginPath(); ctx.strokeStyle=T.green; ctx.lineWidth=2; ctx.setLineDash([4,4]);
-  for(let i=0;i<=N;i++){
+  ctx.beginPath(); ctx.strokeStyle = T.green; ctx.lineWidth = 2; ctx.setLineDash([4,4]);
+  for(let i=0; i<=N; i++){
     const x_phys = -L + (i/N)*(2*L);
     const re = c1 * Math.cos(k * x_phys);
     const im = c2 * Math.sin(k * x_phys);
-    const dens = Math.sqrt(re*re + im*im); // Raiz de densidad para escala visual con la amplitud
+    const dens = Math.hypot(re, im); // OPTIMIZADO usando Math.hypot
     const py1 = cy0 - dens * (ch*0.4);
     const py2 = cy0 + dens * (ch*0.4);
     i===0 ? ctx.moveTo(cx0+(i/N)*cw, py1) : ctx.lineTo(cx0+(i/N)*cw, py1);
   }
   ctx.stroke(); ctx.setLineDash([]);
   
-  // Dibujar Re[Psi(x,t)]
-  // Psi(x,t) = [C1 cos(kx) + i C2 sin(kx)] * [cos(wt) - i sin(wt)]
-  // Re[Psi] = C1 cos(kx)cos(wt) + C2 sin(kx)sin(wt)
-  ctx.beginPath(); ctx.strokeStyle=T.blue; ctx.lineWidth=3; ctx.lineJoin="round";
-  for(let i=0;i<=N;i++){
+  ctx.beginPath(); ctx.strokeStyle = T.blue; ctx.lineWidth = 3; ctx.lineJoin = "round";
+  for(let i=0; i<=N; i++){
     const x_px = cx0 + (i/N)*cw;
     const x_phys = -L + (i/N)*(2*L);
     const re_psi = c1 * Math.cos(k*x_phys)*Math.cos(omega*t) + c2 * Math.sin(k*x_phys)*Math.sin(omega*t);
@@ -592,78 +599,67 @@ function drawPacket(t) {
   document.getElementById('p-tv').textContent = t.toFixed(2);
   
   const m = 1;
-  const L = 20; // Dominio visual más grande para ver el movimiento
+  const L = 20; 
   const N_modes = 150;
   
   const configStr = `${k0}-${sig}`;
   if(lastPacketConfig !== configStr || !modesCache) {
-    // Recalcular modos (Suma discreta de Fourier para simular la integral)
     modesCache = [];
     let norm = 0;
-    const dk = (6/sig) / N_modes; // Rango de 3 sigmas a cada lado en espacio k
+    const dk = (6/sig) / N_modes; 
     const k_start = k0 - 3/sig;
     
     for(let i=0; i<=N_modes; i++){
       let k = k_start + i*dk;
-      // Amplitud Gausiana en el espacio de momento
       let A = Math.exp(-0.5 * Math.pow((k - k0)*sig, 2)); 
       modesCache.push({k: k, A: A, w: (k*k)/(2*m)});
       norm += A;
     }
-    modesCache.forEach(m => m.A /= norm); // Normalizar
+    modesCache.forEach(m => m.A /= norm); 
     lastPacketConfig = configStr;
   }
 
-  const {ctx,w,h}=initCvs('pc',300);
-  const T=themeColors();
-  const pad={t:40,b:40,l:20,r:20};
-  const cw=w-pad.l-pad.r, ch=h-pad.t-pad.b;
-  const cx0=pad.l, cy0=pad.t+ch/2;
+  const {ctx, w, h} = initCvs('pc', 300);
+  const T = themeColors();
+  const pad = {t:40, b:40, l:20, r:20};
+  const cw = w - pad.l - pad.r, ch = h - pad.t - pad.b;
+  const cx0 = pad.l, cy0 = pad.t + ch/2;
   
   ctx.clearRect(0,0,w,h);
   
-  // Eje X
-  ctx.strokeStyle=T.axis; ctx.lineWidth=1.5;
-  ctx.beginPath();ctx.moveTo(0,cy0);ctx.lineTo(w,cy0);ctx.stroke();
+  ctx.strokeStyle = T.axis; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(0,cy0); ctx.lineTo(w,cy0); ctx.stroke();
   
-  const N=400;
-  let maxDens = 0;
+  const N = 400;
   const ptsRe = [], ptsDens = [];
   
-  const x0 = -L/2; // FIX: Desplazamiento inicial para que el paquete nazca a la izquierda y tenga más recorrido
+  const x0 = -L/2; 
   
-  // Calcular campo
-  for(let i=0;i<=N;i++){
+  for(let i=0; i<=N; i++){
     const x_px = cx0 + (i/N)*cw;
     const x_phys = -L + (i/N)*(2*L);
     
     let re = 0, im = 0;
     for(let j=0; j<modesCache.length; j++){
       const M = modesCache[j];
-      const phase = M.k * (x_phys - x0) - M.w * t; // Se aplica x0 al desfase
+      const phase = M.k * (x_phys - x0) - M.w * t; 
       re += M.A * Math.cos(phase);
       im += M.A * Math.sin(phase);
     }
     
-    const dens = Math.sqrt(re*re + im*im); // Envolvente visual
-    if(dens > maxDens) maxDens = dens;
-    
-    // FIX: Escala corregida a 0.45 para que el pico inicial no desborde el canvas por arriba
+    const dens = Math.hypot(re, im); // OPTIMIZADO usando Math.hypot
     ptsRe.push({x: x_px, y: cy0 - re * ch * 0.45});
     ptsDens.push({x: x_px, y: cy0 - dens * ch * 0.45});
   }
   
-  // Dibujar Envolvente
-  ctx.beginPath(); ctx.strokeStyle=T.red; ctx.lineWidth=2; ctx.globalAlpha=0.5;
-  ptsDens.forEach((p,i)=> i===0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y));
-  ctx.stroke(); ctx.globalAlpha=1;
+  ctx.beginPath(); ctx.strokeStyle = T.red; ctx.lineWidth = 2; ctx.globalAlpha = 0.5;
+  ptsDens.forEach((p,i) => i===0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+  ctx.stroke(); ctx.globalAlpha = 1;
   
-  // Dibujar Onda Real
-  ctx.beginPath(); ctx.strokeStyle=T.main; ctx.lineWidth=2.5; ctx.lineJoin="round";
-  ptsRe.forEach((p,i)=> i===0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y));
+  ctx.beginPath(); ctx.strokeStyle = T.main; ctx.lineWidth = 2.5; ctx.lineJoin = "round";
+  ptsRe.forEach((p,i) => i===0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
   ctx.stroke();
   
-  // Centro aproximado de gravedad visual x = x0 + v_g * t
   const vg = k0/m;
   const x_centro = x0 + vg * t;
   const x_centro_px = cx0 + ((x_centro + L)/(2*L)) * cw;
@@ -671,14 +667,17 @@ function drawPacket(t) {
   document.getElementById('p-pos').textContent = x_centro.toFixed(1) + ' a.u.';
   
   if(x_centro_px > cx0 && x_centro_px < cx0+cw) {
-    ctx.beginPath(); ctx.strokeStyle=T.muted; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.strokeStyle = T.muted; ctx.lineWidth = 1.5; ctx.setLineDash([4,4]);
     ctx.moveTo(x_centro_px, pad.t); ctx.lineTo(x_centro_px, pad.t+ch); ctx.stroke(); ctx.setLineDash([]);
   }
 }
 
 // ════ ANIMATION ENGINE ════
 function stopAnim(){
-  if(animId){cancelAnimationFrame(animId);animId=null;}
+  if(animId) {
+    cancelAnimationFrame(animId);
+    animId = null;
+  }
 }
 
 function startAnim(tabMode){
@@ -686,64 +685,74 @@ function startAnim(tabMode){
   if(!running) return;
   
   const btn = document.getElementById(tabMode === 2 ? 't-play' : 'p-play');
-  btn.innerHTML='<svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M14 19V5h4v14h-4zm-8 0V5h4v14H6z"/></svg> Pausar';
+  btn.innerHTML = '<svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M14 19V5h4v14h-4zm-8 0V5h4v14H6z"/></svg> Pausar';
   btn.classList.add('primary');
-  let last=null;
+  let last = null;
   
   function frame(ts){
     let isRunning = tabMode === 2 ? animRunning : packetRunning;
-    if(!isRunning){animId=null;return;}
-    if(last!==null){
-      const dt = (ts-last)*0.001;
+    if(!isRunning) { animId = null; return; }
+    
+    if(last !== null){
+      const dt = (ts - last) * 0.001;
       if(tabMode === 2) {
         animT += dt * (+document.getElementById('t-sp').value);
         drawTemporal(animT);
       } else {
-        packetT += dt * (+document.getElementById('p-sp').value) * 2; // mult por 2 para agilizar
+        packetT += dt * (+document.getElementById('p-sp').value) * 2; 
         drawPacket(packetT);
       }
     }
-    last=ts;
-    animId=requestAnimationFrame(frame);
+    last = ts;
+    animId = requestAnimationFrame(frame);
   }
-  animId=requestAnimationFrame(frame);
+  animId = requestAnimationFrame(frame);
 }
 
 function toggleAnim(tabMode){
   const btn = document.getElementById(tabMode === 2 ? 't-play' : 'p-play');
   if(tabMode === 2) {
     if(animRunning){
-      animRunning=false; stopAnim();
-      btn.innerHTML='<svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Reanudar';
+      animRunning = false; 
+      stopAnim();
+      btn.innerHTML = '<svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Reanudar';
       btn.classList.remove('primary');
-    } else { animRunning=true; startAnim(2); }
+    } else { 
+      animRunning = true; 
+      startAnim(2); 
+    }
   } else {
     if(packetRunning){
-      packetRunning=false; stopAnim();
-      btn.innerHTML='<svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Reanudar';
+      packetRunning = false; 
+      stopAnim();
+      btn.innerHTML = '<svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Reanudar';
       btn.classList.remove('primary');
-    } else { packetRunning=true; startAnim(3); }
+    } else { 
+      packetRunning = true; 
+      startAnim(3); 
+    }
   }
 }
 
-function resetPacket(){ packetT=0; if(!packetRunning) drawPacket(packetT); }
+function resetPacket(){ 
+  packetT = 0; 
+  if(!packetRunning) drawPacket(packetT); 
+}
 
 function renderAll(){
-  if(currentTab===0) drawWave();
-  else if(currentTab===1) drawDensity();
-  else if(currentTab===2 && !animRunning) drawTemporal(animT);
-  else if(currentTab===3 && !packetRunning) drawPacket(packetT);
+  if(currentTab === 0) drawWave();
+  else if(currentTab === 1) drawDensity();
+  else if(currentTab === 2 && !animRunning) drawTemporal(animT);
+  else if(currentTab === 3 && !packetRunning) drawPacket(packetT);
 }
 
 // Event Listeners
 setupSync();
 
-// Actualizar dinámicamente los textos numéricos de las barras al deslizarlas
 document.querySelectorAll('input[type=range]').forEach(input => {
   input.addEventListener('input', (e) => {
     const valSpan = document.getElementById(e.target.id + '-v');
     if (valSpan) {
-      // Si es una barra de velocidad (sp), añadir la '×'
       if (e.target.id.endsWith('-sp')) {
         valSpan.textContent = Number(e.target.value).toFixed(1) + '×';
       } else {
@@ -753,15 +762,20 @@ document.querySelectorAll('input[type=range]').forEach(input => {
   });
 });
 
-['w-k','w-c1','w-c2'].forEach(id=>document.getElementById(id).addEventListener('input',drawWave));
-['d-k','d-c1','d-c2'].forEach(id=>document.getElementById(id).addEventListener('input',drawDensity));
-['t-k','t-c1','t-c2','t-sp'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{if(!animRunning)drawTemporal(animT);}));
-['p-k','p-sig','p-sp'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{if(!packetRunning)drawPacket(packetT);}));
+['w-k','w-c1','w-c2'].forEach(id => document.getElementById(id).addEventListener('input', drawWave));
+['d-k','d-c1','d-c2'].forEach(id => document.getElementById(id).addEventListener('input', drawDensity));
+['t-k','t-c1','t-c2','t-sp'].forEach(id => document.getElementById(id).addEventListener('input', () => { if(!animRunning) drawTemporal(animT); }));
+['p-k','p-sig','p-sp'].forEach(id => document.getElementById(id).addEventListener('input', () => { if(!packetRunning) drawPacket(packetT); }));
 
-window.addEventListener('resize',renderAll);
+// Manejo seguro de redimensionamiento (debounce simple para evitar repintados bruscos)
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(renderAll, 100); // 100ms debounce
+});
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', renderAll);
 
-// Iniciar con la primera pestaña
+// Iniciar
 drawWave();
 </script>
 </body>
