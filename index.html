@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador: Partícula Libre (V(x)=0)</title>
+<!-- Fuentes amigables y educativas -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --font-math: 'Lora', serif;
+  --font-ui: 'Nunito', sans-serif;
+  
+  --bg-page: #f9f8f6;
+  --bg-card: #ffffff;
+  --bg-control: #f0eee6;
+  --text-main: #2d3748;
+  --text-muted: #718096;
+  --accent-main: #142d5a;   /* Azul UNMSM inspirado en tu doc */
+  --accent-hover: #1e458a;
+  --accent-blue: #4a7a8c;
+  --accent-green: #5a8c6a;
+  --accent-yellow: #d9a05b;
+  --accent-red: #d96c4a;
+  
+  --shadow-soft: 0 12px 36px -12px rgba(20, 45, 90, 0.15);
+  --border-soft: rgba(0,0,0,0.05);
+  --grid-dots: rgba(0,0,0,0.06);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-page: #0f141e;
+    --bg-card: #18202f;
+    --bg-control: #232d40;
+    --text-main: #e2e8f0;
+    --text-muted: #a0aec0;
+    --accent-main: #4a82d2;
+    --accent-hover: #6fa0e5;
+    --shadow-soft: 0 12px 36px -12px rgba(0, 0, 0, 0.5);
+    --border-soft: rgba(255,255,255,0.05);
+    --grid-dots: rgba(255,255,255,0.04);
+  }
+}
+
+* { box-sizing: border-box; }
+body {
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  font-family: var(--font-ui);
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+h1, h2, h3 { font-family: var(--font-math); font-weight: 600; }
+.sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); }
+
+.app-container {
+  width: 100%;
+  max-width: 860px;
+}
+
+.header { text-align: center; margin-bottom: 2.5rem; }
+.header h1 { font-size: 2.2rem; color: var(--accent-main); margin-bottom: 0.5rem; }
+.header p { color: var(--text-muted); font-size: 1.1rem; margin: 0; font-family: var(--font-math); }
+
+.tabs-container {
+  display: flex; justify-content: center; gap: 10px; margin-bottom: 2rem; flex-wrap: wrap;
+}
+.tab {
+  background: var(--bg-card); color: var(--text-muted); border: 1px solid var(--border-soft);
+  padding: 10px 20px; border-radius: 999px; font-family: var(--font-ui); font-size: 15px;
+  font-weight: 600; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+  transition: all 0.3s ease;
+}
+.tab:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); color: var(--text-main); }
+.tab.active {
+  background: var(--accent-main); color: white; border-color: var(--accent-main);
+  box-shadow: 0 6px 15px rgba(20, 45, 90, 0.3);
+}
+
+.section { display: none; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+.section.active { display: block; }
+
+@keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+.card {
+  background: var(--bg-card); border-radius: 24px; padding: 2rem;
+  box-shadow: var(--shadow-soft); border: 1px solid var(--border-soft); margin-bottom: 1.5rem;
+}
+
+.controls-layout { display: flex; flex-wrap: wrap; gap: 24px; margin-bottom: 2rem; }
+.ctrl-item { flex: 1 1 min-width(200px, 100%); display: flex; flex-direction: column; gap: 8px; }
+.ctrl-header { display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: var(--text-muted); font-weight: 600; }
+.ctrl-val { color: var(--accent-main); font-family: var(--font-math); font-size: 16px; font-weight: 600; background: var(--bg-control); padding: 2px 10px; border-radius: 12px; }
+
+input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+input[type=range]:focus { outline: none; }
+input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 8px; cursor: pointer; background: var(--bg-control); border-radius: 8px; }
+input[type=range]::-webkit-slider-thumb { height: 20px; width: 20px; border-radius: 50%; background: var(--accent-main); cursor: pointer; -webkit-appearance: none; margin-top: -6px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s; }
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+.metrics-bar { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 2rem; justify-content: center; }
+.metric-pill { display: flex; align-items: baseline; gap: 8px; background: var(--bg-control); padding: 8px 16px; border-radius: 16px; font-size: 14px; }
+.m-lbl { color: var(--text-muted); font-weight: 600; }
+.m-val { color: var(--text-main); font-family: var(--font-math); font-weight: 600; font-size: 16px;}
+
+.canvas-wrapper {
+  position: relative; border-radius: 16px; overflow: hidden; background-color: var(--bg-page);
+  background-image: radial-gradient(var(--grid-dots) 1.5px, transparent 1.5px);
+  background-size: 20px 20px; border: 1px solid var(--border-soft); box-shadow: inset 0 2px 10px rgba(0,0,0,0.02);
+}
+.canvas-title { position: absolute; top: 15px; left: 20px; font-family: var(--font-math); font-size: 15px; color: var(--text-muted); font-style: italic; pointer-events: none; }
+canvas { width: 100%; display: block; }
+
+.btn-row { display: flex; gap: 12px; margin-bottom: 1.5rem; justify-content: center; }
+button.action-btn {
+  padding: 10px 24px; font-size: 15px; border-radius: 12px; border: none; cursor: pointer;
+  font-family: var(--font-ui); font-weight: 600; background: var(--bg-control); color: var(--text-main);
+  transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+}
+button.action-btn:hover { background: #e2e8f0; transform: translateY(-1px); }
+.dark-mode button.action-btn:hover { background: #334155; }
+button.action-btn.primary { background: var(--accent-main); color: white; box-shadow: 0 4px 12px rgba(20, 45, 90, 0.3); }
+button.action-btn.primary:hover { background: var(--accent-hover); }
+
+.legend-row { display: flex; gap: 20px; justify-content: center; margin-top: 15px; font-size: 13px; font-weight: 600; color: var(--text-muted); }
+.leg-item { display: flex; align-items: center; gap: 6px; }
+.leg-line { width: 16px; height: 3px; border-radius: 2px; }
+.leg-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+.explanation { font-family: var(--font-math); font-size: 1.05rem; color: var(--text-muted); text-align: center; margin-top: 1.5rem; padding: 0 20px; }
+.math-block { background: var(--bg-control); padding: 10px; border-radius: 8px; font-family: var(--font-math); color: var(--accent-main); margin-top: 10px; display: inline-block;}
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <div class="header">
+    <h1>Mecánica Cuántica: Partícula Libre</h1>
+    <p>Simulación para V(x) = 0 sobre el eje x</p>
+  </div>
+
+  <div class="tabs-container">
+    <button class="tab active" onclick="switchTab(0)">Estado Espacial ψ(x)</button>
+    <button class="tab" onclick="switchTab(1)">Densidad |ψ|²</button>
+    <button class="tab" onclick="switchTab(2)">Evolución Temporal</button>
+    <button class="tab" onclick="switchTab(3)">Paquete de Ondas</button>
+  </div>
+
+  <!-- ══════ TAB 0: FUNCIÓN DE ONDA ESPACIAL ══════ -->
+  <div class="section active" id="sec0">
+    <div class="card">
+      <div class="controls-layout">
+        <div class="ctrl-item">
+          <div class="ctrl-header">Número de onda (k) <span class="ctrl-val" id="w-k-v">2.0</span></div>
+          <input type="range" min="0.5" max="6" step="0.1" value="2.0" id="w-k">
+        </div>
+        <div class="ctrl-item">
+          <div class="ctrl-header">Coeficiente C₁ (Real) <span class="ctrl-val" id="w-c1-v">1.0</span></div>
+          <input type="range" min="-1" max="1" step="0.1" value="1" id="w-c1">
+        </div>
+        <div class="ctrl-item">
+          <div class="ctrl-header">Coeficiente C₂ (Imag) <span class="ctrl-val" id="w-c2-v">0.0</span></div>
+          <input type="range" min="-1" max="1" step="0.1" value="0" id="w-c2">
+        </div>
+      </div>
+      
+      <div class="metrics-bar">
+        <div class="metric-pill"><span class="m-lbl">Energía E:</span><span class="m-val" id="w-en">—</span></div>
+        <div class="metric-pill"><span class="m-lbl">Momento p:</span><span class="m-val" id="w-p">—</span></div>
+        <div class="metric-pill"><span class="m-lbl">Longitud λ:</span><span class="m-val" id="w-lam">—</span></div>
+      </div>
+
+      <div class="canvas-wrapper">
+        <div class="canvas-title">ψ(x) = C₁cos(kx) + i C₂sin(kx)</div>
+        <canvas id="wc" height="280"></canvas>
+      </div>
+      
+      <div class="legend-row">
+        <div class="leg-item"><div class="leg-line" style="background:var(--accent-blue)"></div> <span>Parte Real (C₁cos)</span></div>
+        <div class="leg-item"><div class="leg-line" style="background:var(--accent-red)"></div> <span>Parte Imaginaria (C₂sin)</span></div>
+      </div>
+      
+      <div class="explanation">
+        En una región sin potencial <i>V(x)</i> = 0, la partícula no está confinada. La solución espacial es una combinación lineal de senos y cosenos a lo largo de todo el espacio infinito.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ TAB 1: DENSIDAD DE PROBABILIDAD ══════ -->
+  <div class="section" id="sec1">
+    <div class="card">
+      <div class="controls-layout">
+        <div class="ctrl-item">
+          <div class="ctrl-header">Número de onda (k) <span class="ctrl-val" id="d-k-v">2.0</span></div>
+          <input type="range" min="0.5" max="6" step="0.1" value="2.0" id="d-k">
+        </div>
+        <div class="ctrl-item">
+          <div class="ctrl-header">Coeficiente C₁ (Real) <span class="ctrl-val" id="d-c1-v">1.0</span></div>
+          <input type="range" min="-1" max="1" step="0.1" value="1" id="d-c1">
+        </div>
+        <div class="ctrl-item">
+          <div class="ctrl-header">Coeficiente C₂ (Imag) <span class="ctrl-val" id="d-c2-v">1.0</span></div>
+          <input type="range" min="-1" max="1" step="0.1" value="1" id="d-c2">
+        </div>
+      </div>
+
+      <div class="canvas-wrapper">
+        <div class="canvas-title">Densidad |ψ(x)|²</div>
+        <canvas id="dc" height="280"></canvas>
+      </div>
+      
+      <div class="legend-row">
+        <div class="leg-item"><div class="leg-dot" style="background:var(--accent-green)"></div> <span>|ψ(x)|² = |C₁cos(kx) + iC₂sin(kx)|²</span></div>
+      </div>
+      
+      <div class="explanation" id="d-info"></div>
+    </div>
+  </div>
+
+  <!-- ══════ TAB 2: EVOLUCIÓN TEMPORAL ══════ -->
+  <div class="section" id="sec2">
+    <div class="card">
+      <div class="controls-layout">
+        <div class="ctrl-item">
+          <div class="ctrl-header">Número de onda (k) <span class="ctrl-val" id="t-k-v">2.0</span></div>
+          <input type="range" min="0.5" max="6" step="0.1" value="2.0" id="t-k">
+        </div>
+        <div class="ctrl-item">
+          <div class="ctrl-header">C₁ (Real) <span class="ctrl-val" id="t-c1-v">1.0</span></div>
+          <input type="range" min="-1" max="1" step="0.1" value="1" id="t-c1">
+        </div>
+        <div class="ctrl-item">
+          <div class="ctrl-header">C₂ (Imag) <span class="ctrl-val" id="t-c2-v">1.0</span></div>
+          <input type="range" min="-1" max="1" step="0.1" value="1" id="t-c2">
+        </div>
+        <div class="ctrl-item">
+          <div class="ctrl-header">Velocidad Anim. <span class="ctrl-val" id="t-sp-v">1×</span></div>
+          <input type="range" min="0.2" max="3" step="0.2" value="1" id="t-sp">
+        </div>
+      </div>
+      
+      <div class="btn-row">
+        <button class="action-btn primary" id="t-play" onclick="toggleAnim(2)">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M14 19V5h4v14h-4zm-8 0V5h4v14H6z"/></svg> Pausar
+        </button>
+      </div>
+
+      <div class="metrics-bar">
+        <div class="metric-pill"><span class="m-lbl">Tiempo (t):</span><span class="m-val" id="t-tv">0.00</span></div>
+      </div>
+
+      <div class="canvas-wrapper">
+        <div class="canvas-title">Re[Ψ(x,t)] Evolucionando</div>
+        <canvas id="tc" height="280"></canvas>
+      </div>
+      
+      <div class="legend-row">
+        <div class="leg-item"><div class="leg-line" style="background:var(--accent-blue)"></div> <span>Parte Real Re[Ψ(x,t)]</span></div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--accent-green)"></div> <span>Densidad |Ψ|² (Constante en el tiempo)</span></div>
+      </div>
+      
+      <div class="explanation">
+        La evolución temporal introduce la fase <span class="math-block">φ(t) = e<sup>-iEt/ℏ</sup></span>. Si C₁ y C₂ son iguales, obtenemos una <b>Onda Viajera</b>. Si uno es cero, obtenemos una <b>Onda Estacionaria</b>.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ TAB 3: PAQUETE DE ONDAS ══════ -->
+  <div class="section" id="sec3">
+    <div class="card">
+      <div class="controls-layout">
+        <div class="ctrl-item">
+          <div class="ctrl-header">Momento central (k₀) <span class="ctrl-val" id="p-k-v">4.0</span></div>
+          <input type="range" min="1" max="8" step="0.5" value="4.0" id="p-k">
+        </div>
+        <div class="ctrl-item">
+          <div class="ctrl-header">Dispersión Inicial (σ) <span class="ctrl-val" id="p-sig-v">1.0</span></div>
+          <input type="range" min="0.5" max="3" step="0.1" value="1.0" id="p-sig">
+        </div>
+        <div class="ctrl-item">
+          <div class="ctrl-header">Velocidad Anim. <span class="ctrl-val" id="p-sp-v">1×</span></div>
+          <input type="range" min="0.5" max="3" step="0.5" value="1" id="p-sp">
+        </div>
+      </div>
+      
+      <div class="btn-row">
+        <button class="action-btn primary" id="p-play" onclick="toggleAnim(3)">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M14 19V5h4v14h-4zm-8 0V5h4v14H6z"/></svg> Pausar
+        </button>
+        <button class="action-btn" onclick="resetPacket()">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Reiniciar t=0
+        </button>
+      </div>
+
+      <div class="metrics-bar">
+        <div class="metric-pill"><span class="m-lbl">Tiempo (t):</span><span class="m-val" id="p-tv">0.00</span></div>
+        <div class="metric-pill"><span class="m-lbl">Posición ⟨x⟩:</span><span class="m-val" id="p-pos">—</span></div>
+      </div>
+
+      <div class="canvas-wrapper">
+        <div class="canvas-title">Dispersión del Paquete Libre</div>
+        <canvas id="pc" height="300"></canvas>
+      </div>
+      
+      <div class="legend-row">
+        <div class="leg-item"><div class="leg-line" style="background:var(--accent-main)"></div> <span>Re[Ψ(x,t)]</span></div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--accent-red)"></div> <span>Envolvente |Ψ|²</span></div>
+      </div>
+      
+      <div class="explanation">
+        Una partícula libre real está localizada en el espacio sumando infinitas ondas planas (paquete de ondas). Con el tiempo, debido a que <i>E</i> ∝ <i>k</i>², cada onda viaja a distinta velocidad, haciendo que el paquete <b>se disperse y ensanche</b> en el espacio libre.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentTab = 0;
+let animId = null, animT = 0, animRunning = true;
+let packetT = 0, packetRunning = true;
+
+// Variables de sincronización simple
+function syncInputs(sourceId, targetIds, val) {
+  targetIds.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) { el.value = val; document.getElementById(id+'-v').textContent = Number(val).toFixed(1); }
+  });
+}
+
+function setupSync() {
+  const syncGroups = [
+    { source: 'w-k', targets: ['d-k', 't-k'] },
+    { source: 'w-c1', targets: ['d-c1', 't-c1'] },
+    { source: 'w-c2', targets: ['d-c2', 't-c2'] },
+    { source: 'd-k', targets: ['w-k', 't-k'] },
+    { source: 'd-c1', targets: ['w-c1', 't-c1'] },
+    { source: 'd-c2', targets: ['w-c2', 't-c2'] },
+    { source: 't-k', targets: ['w-k', 'd-k'] },
+    { source: 't-c1', targets: ['w-c1', 'd-c1'] },
+    { source: 't-c2', targets: ['w-c2', 'd-c2'] }
+  ];
+  syncGroups.forEach(g => {
+    document.getElementById(g.source).addEventListener('input', (e) => syncInputs(g.source, g.targets, e.target.value));
+  });
+}
+
+function switchTab(i) {
+  document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
+  document.querySelectorAll('.section').forEach((s,j)=>s.classList.toggle('active',j===i));
+  currentTab = i;
+  
+  if(i===2 && !animId) startAnim(2);
+  else if(i===3 && !animId) startAnim(3);
+  
+  if(i!==2 && i!==3) stopAnim();
+  
+  setTimeout(renderAll, 10);
+}
+
+function dpr(){return window.devicePixelRatio||1}
+
+function initCvs(id,h){
+  const cvs=document.getElementById(id);
+  const w=cvs.parentElement.getBoundingClientRect().width; 
+  const d=dpr();
+  cvs.width=w*d; cvs.height=h*d;
+  cvs.style.width=w+'px'; cvs.style.height=h+'px';
+  const ctx=cvs.getContext('2d'); 
+  ctx.scale(d,d);
+  return {ctx,w,h};
+}
+
+function dark(){return window.matchMedia('(prefers-color-scheme:dark)').matches}
+
+function themeColors(){
+  const d=dark();
+  return {
+    text: d ? '#e2e8f0' : '#2d3748',
+    muted: d ? '#a0aec0' : '#718096',
+    grid: d ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
+    axis: d ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
+    blue: '#4a7a8c',
+    green: '#5a8c6a',
+    red: '#d96c4a',
+    main: d ? '#4a82d2' : '#142d5a'
+  };
+}
+
+// Dibujar ejes para dominio infinito
+function drawInfiniteAxes(ctx, cx0, cw, cy0, ch, T) {
+  ctx.strokeStyle=T.grid; ctx.lineWidth=1;
+  [-0.75, -0.5, -0.25, 0.25, 0.5, 0.75].forEach(v=>{
+    const y=cy0-v*ch*0.44;
+    ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(cx0+cw+50,y);ctx.stroke();
+  });
+  // Eje X Central
+  ctx.strokeStyle=T.axis; ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(0,cy0);ctx.lineTo(cx0+cw+50,cy0);ctx.stroke();
+  
+  // Eje Y central (x=0)
+  ctx.beginPath();ctx.moveTo(cx0+cw/2, cy0-ch/2);ctx.lineTo(cx0+cw/2, cy0+ch/2);ctx.stroke();
+  
+  ctx.fillStyle=T.muted; ctx.font='13px "Nunito", sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('x = 0', cx0+cw/2, cy0+ch/2 - 5);
+}
+
+// ════ TAB 0: ESPACIAL ════
+function drawWave(){
+  const k = +document.getElementById('w-k').value;
+  const c1 = +document.getElementById('w-c1').value;
+  const c2 = +document.getElementById('w-c2').value;
+  
+  document.getElementById('w-k-v').textContent=k.toFixed(1);
+  document.getElementById('w-c1-v').textContent=c1.toFixed(1);
+  document.getElementById('w-c2-v').textContent=c2.toFixed(1);
+  
+  const m = 1; // Masa unitaria referencial
+  const E = (k*k)/(2*m);
+  document.getElementById('w-en').textContent=E.toFixed(2)+' u.a.';
+  document.getElementById('w-p').textContent=(k).toFixed(2)+' ℏ';
+  document.getElementById('w-lam').textContent=(2*Math.PI/k).toFixed(2);
+
+  const {ctx,w,h}=initCvs('wc',280);
+  const T=themeColors();
+  const pad={t:50,b:40,l:20,r:20};
+  const cw=w-pad.l-pad.r, ch=h-pad.t-pad.b;
+  const cx0=pad.l, cy0=pad.t+ch/2;
+  
+  ctx.clearRect(0,0,w,h);
+  drawInfiniteAxes(ctx, cx0, cw, cy0, ch, T);
+
+  const N=400;
+  const L = 10; // Rango espacial [-L, L]
+  
+  // Dibujar Parte Imaginaria (Seno)
+  if(c2 !== 0) {
+    ctx.beginPath(); ctx.strokeStyle=T.red; ctx.lineWidth=2.5; ctx.globalAlpha=0.8;
+    for(let i=0;i<=N;i++){
+      const x_px = cx0 + (i/N)*cw;
+      const x_phys = -L + (i/N)*(2*L);
+      const val = c2 * Math.sin(k * x_phys);
+      const py = cy0 - val * (ch*0.4);
+      i===0 ? ctx.moveTo(x_px,py) : ctx.lineTo(x_px,py);
+    }
+    ctx.stroke();
+  }
+
+  // Dibujar Parte Real (Coseno)
+  if(c1 !== 0) {
+    ctx.beginPath(); ctx.strokeStyle=T.blue; ctx.lineWidth=3; ctx.globalAlpha=1;
+    for(let i=0;i<=N;i++){
+      const x_px = cx0 + (i/N)*cw;
+      const x_phys = -L + (i/N)*(2*L);
+      const val = c1 * Math.cos(k * x_phys);
+      const py = cy0 - val * (ch*0.4);
+      i===0 ? ctx.moveTo(x_px,py) : ctx.lineTo(x_px,py);
+    }
+    ctx.stroke();
+  }
+}
+
+// ════ TAB 1: DENSIDAD ════
+function drawDensity(){
+  const k = +document.getElementById('d-k').value;
+  const c1 = +document.getElementById('d-c1').value;
+  const c2 = +document.getElementById('d-c2').value;
+  
+  const {ctx,w,h}=initCvs('dc',280);
+  const T=themeColors();
+  const pad={t:50,b:40,l:20,r:20};
+  const cw=w-pad.l-pad.r, ch=h-pad.t-pad.b;
+  const cx0=pad.l, cy0=pad.t+ch;
+  
+  ctx.clearRect(0,0,w,h);
+  
+  // Grilla base en Y=0
+  ctx.strokeStyle=T.axis; ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(0,cy0);ctx.lineTo(w,cy0);ctx.stroke();
+  // Eje Central
+  ctx.beginPath();ctx.moveTo(cx0+cw/2, pad.t);ctx.lineTo(cx0+cw/2, cy0);ctx.stroke();
+
+  const N=400;
+  const L = 10;
+  const maxVal = 2.0; // max posible |c1|^2 + |c2|^2 es 2
+  
+  ctx.beginPath(); ctx.strokeStyle=T.green; ctx.lineWidth=3;
+  ctx.fillStyle=T.green; ctx.globalAlpha=0.15;
+  
+  const pts = [];
+  for(let i=0;i<=N;i++){
+    const x_px = cx0 + (i/N)*cw;
+    const x_phys = -L + (i/N)*(2*L);
+    const re = c1 * Math.cos(k * x_phys);
+    const im = c2 * Math.sin(k * x_phys);
+    const dens = re*re + im*im; // |psi|^2
+    const py = cy0 - (dens/maxVal)*(ch*0.8);
+    pts.push({x: x_px, y: py});
+  }
+  
+  // Relleno
+  ctx.beginPath();
+  pts.forEach((p,i)=> i===0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+  ctx.lineTo(cx0+cw, cy0); ctx.lineTo(cx0, cy0); ctx.closePath(); ctx.fill();
+  
+  // Linea
+  ctx.globalAlpha=1; ctx.beginPath();
+  pts.forEach((p,i)=> i===0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+  ctx.stroke();
+
+  // Texto explicativo dinámico
+  const infoEl = document.getElementById('d-info');
+  if(Math.abs(Math.abs(c1) - Math.abs(c2)) < 0.05 && Math.abs(c1) > 0) {
+    infoEl.innerHTML = `Con |C₁| = |C₂|, la densidad es una línea recta (constante). Esto representa una <b>onda plana pura viajera</b> (e<sup>±ikx</sup>). ¡La partícula tiene la misma probabilidad de estar en cualquier parte!`;
+  } else if (c1 === 0 || c2 === 0) {
+    infoEl.innerHTML = `Con un coeficiente en cero, se forma una <b>onda estacionaria pura</b>. La densidad de probabilidad oscila y existen nodos donde la partícula nunca estará.`;
+  } else {
+    infoEl.innerHTML = `Combinación de onda viajera y estacionaria. La densidad oscila pero nunca llega a cero absoluto.`;
+  }
+}
+
+// ════ TAB 2: EVOLUCIÓN ESTADO PURO ════
+function drawTemporal(t) {
+  const k = +document.getElementById('t-k').value;
+  const c1 = +document.getElementById('t-c1').value;
+  const c2 = +document.getElementById('t-c2').value;
+  
+  document.getElementById('t-tv').textContent=t.toFixed(2);
+  
+  const m = 1;
+  const omega = (k*k)/(2*m); // E/hbar
+  
+  const {ctx,w,h}=initCvs('tc',280);
+  const T=themeColors();
+  const pad={t:40,b:40,l:20,r:20};
+  const cw=w-pad.l-pad.r, ch=h-pad.t-pad.b;
+  const cx0=pad.l, cy0=pad.t+ch/2;
+  
+  ctx.clearRect(0,0,w,h);
+  drawInfiniteAxes(ctx, cx0, cw, cy0, ch, T);
+  
+  const N=400;
+  const L = 10;
+  
+  // Dibujar Envolvente (Constante en el tiempo)
+  ctx.beginPath(); ctx.strokeStyle=T.green; ctx.lineWidth=2; ctx.setLineDash([4,4]);
+  for(let i=0;i<=N;i++){
+    const x_phys = -L + (i/N)*(2*L);
+    const re = c1 * Math.cos(k * x_phys);
+    const im = c2 * Math.sin(k * x_phys);
+    const dens = Math.sqrt(re*re + im*im); // Raiz de densidad para escala visual con la amplitud
+    const py1 = cy0 - dens * (ch*0.4);
+    const py2 = cy0 + dens * (ch*0.4);
+    i===0 ? ctx.moveTo(cx0+(i/N)*cw, py1) : ctx.lineTo(cx0+(i/N)*cw, py1);
+  }
+  ctx.stroke(); ctx.setLineDash([]);
+  
+  // Dibujar Re[Psi(x,t)]
+  // Psi(x,t) = [C1 cos(kx) + i C2 sin(kx)] * [cos(wt) - i sin(wt)]
+  // Re[Psi] = C1 cos(kx)cos(wt) + C2 sin(kx)sin(wt)
+  ctx.beginPath(); ctx.strokeStyle=T.blue; ctx.lineWidth=3; ctx.lineJoin="round";
+  for(let i=0;i<=N;i++){
+    const x_px = cx0 + (i/N)*cw;
+    const x_phys = -L + (i/N)*(2*L);
+    const re_psi = c1 * Math.cos(k*x_phys)*Math.cos(omega*t) + c2 * Math.sin(k*x_phys)*Math.sin(omega*t);
+    const py = cy0 - re_psi * (ch*0.4);
+    i===0 ? ctx.moveTo(x_px, py) : ctx.lineTo(x_px, py);
+  }
+  ctx.stroke();
+}
+
+// ════ TAB 3: PAQUETE DE ONDAS ════
+let modesCache = null;
+let lastPacketConfig = "";
+
+function drawPacket(t) {
+  const k0 = +document.getElementById('p-k').value;
+  const sig = +document.getElementById('p-sig').value;
+  
+  document.getElementById('p-k-v').textContent = k0.toFixed(1);
+  document.getElementById('p-sig-v').textContent = sig.toFixed(1);
+  document.getElementById('p-tv').textContent = t.toFixed(2);
+  
+  const m = 1;
+  const L = 20; // Dominio visual más grande para ver el movimiento
+  const N_modes = 150;
+  
+  const configStr = `${k0}-${sig}`;
+  if(lastPacketConfig !== configStr || !modesCache) {
+    // Recalcular modos (Suma discreta de Fourier para simular la integral)
+    modesCache = [];
+    let norm = 0;
+    const dk = (6/sig) / N_modes; // Rango de 3 sigmas a cada lado en espacio k
+    const k_start = k0 - 3/sig;
+    
+    for(let i=0; i<=N_modes; i++){
+      let k = k_start + i*dk;
+      // Amplitud Gausiana en el espacio de momento
+      let A = Math.exp(-0.5 * Math.pow((k - k0)*sig, 2)); 
+      modesCache.push({k: k, A: A, w: (k*k)/(2*m)});
+      norm += A;
+    }
+    modesCache.forEach(m => m.A /= norm); // Normalizar
+    lastPacketConfig = configStr;
+  }
+
+  const {ctx,w,h}=initCvs('pc',300);
+  const T=themeColors();
+  const pad={t:40,b:40,l:20,r:20};
+  const cw=w-pad.l-pad.r, ch=h-pad.t-pad.b;
+  const cx0=pad.l, cy0=pad.t+ch/2;
+  
+  ctx.clearRect(0,0,w,h);
+  
+  // Eje X
+  ctx.strokeStyle=T.axis; ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(0,cy0);ctx.lineTo(w,cy0);ctx.stroke();
+  
+  const N=400;
+  let maxDens = 0;
+  const ptsRe = [], ptsDens = [];
+  
+  // Calcular campo
+  for(let i=0;i<=N;i++){
+    const x_px = cx0 + (i/N)*cw;
+    const x_phys = -L + (i/N)*(2*L);
+    
+    let re = 0, im = 0;
+    for(let j=0; j<modesCache.length; j++){
+      const M = modesCache[j];
+      const phase = M.k * x_phys - M.w * t;
+      re += M.A * Math.cos(phase);
+      im += M.A * Math.sin(phase);
+    }
+    
+    const dens = Math.sqrt(re*re + im*im); // Envolvente visual
+    if(dens > maxDens) maxDens = dens;
+    
+    ptsRe.push({x: x_px, y: cy0 - re * ch * 0.8});
+    ptsDens.push({x: x_px, y: cy0 - dens * ch * 0.8});
+  }
+  
+  // Dibujar Envolvente
+  ctx.beginPath(); ctx.strokeStyle=T.red; ctx.lineWidth=2; ctx.globalAlpha=0.5;
+  ptsDens.forEach((p,i)=> i===0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y));
+  ctx.stroke(); ctx.globalAlpha=1;
+  
+  // Dibujar Onda Real
+  ctx.beginPath(); ctx.strokeStyle=T.main; ctx.lineWidth=2.5; ctx.lineJoin="round";
+  ptsRe.forEach((p,i)=> i===0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y));
+  ctx.stroke();
+  
+  // Centro aproximado de gravedad visual x = v_g * t (v_g = k0/m)
+  const vg = k0/m;
+  const x_centro = vg * t;
+  const x_centro_px = cx0 + ((x_centro + L)/(2*L)) * cw;
+  
+  document.getElementById('p-pos').textContent = x_centro.toFixed(1) + ' a.u.';
+  
+  if(x_centro_px > cx0 && x_centro_px < cx0+cw) {
+    ctx.beginPath(); ctx.strokeStyle=T.muted; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+    ctx.moveTo(x_centro_px, pad.t); ctx.lineTo(x_centro_px, pad.t+ch); ctx.stroke(); ctx.setLineDash([]);
+  }
+}
+
+// ════ ANIMATION ENGINE ════
+function stopAnim(){
+  if(animId){cancelAnimationFrame(animId);animId=null;}
+}
+
+function startAnim(tabMode){
+  let running = tabMode === 2 ? animRunning : packetRunning;
+  if(!running) return;
+  
+  const btn = document.getElementById(tabMode === 2 ? 't-play' : 'p-play');
+  btn.innerHTML='<svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M14 19V5h4v14h-4zm-8 0V5h4v14H6z"/></svg> Pausar';
+  btn.classList.add('primary');
+  let last=null;
+  
+  function frame(ts){
+    let isRunning = tabMode === 2 ? animRunning : packetRunning;
+    if(!isRunning){animId=null;return;}
+    if(last!==null){
+      const dt = (ts-last)*0.001;
+      if(tabMode === 2) {
+        animT += dt * (+document.getElementById('t-sp').value);
+        drawTemporal(animT);
+      } else {
+        packetT += dt * (+document.getElementById('p-sp').value) * 2; // mult por 2 para agilizar
+        drawPacket(packetT);
+      }
+    }
+    last=ts;
+    animId=requestAnimationFrame(frame);
+  }
+  animId=requestAnimationFrame(frame);
+}
+
+function toggleAnim(tabMode){
+  const btn = document.getElementById(tabMode === 2 ? 't-play' : 'p-play');
+  if(tabMode === 2) {
+    if(animRunning){
+      animRunning=false; stopAnim();
+      btn.innerHTML='<svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Reanudar';
+      btn.classList.remove('primary');
+    } else { animRunning=true; startAnim(2); }
+  } else {
+    if(packetRunning){
+      packetRunning=false; stopAnim();
+      btn.innerHTML='<svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Reanudar';
+      btn.classList.remove('primary');
+    } else { packetRunning=true; startAnim(3); }
+  }
+}
+
+function resetPacket(){ packetT=0; if(!packetRunning) drawPacket(packetT); }
+
+function renderAll(){
+  if(currentTab===0) drawWave();
+  else if(currentTab===1) drawDensity();
+  else if(currentTab===2 && !animRunning) drawTemporal(animT);
+  else if(currentTab===3 && !packetRunning) drawPacket(packetT);
+}
+
+// Event Listeners
+setupSync();
+['w-k','w-c1','w-c2'].forEach(id=>document.getElementById(id).addEventListener('input',drawWave));
+['d-k','d-c1','d-c2'].forEach(id=>document.getElementById(id).addEventListener('input',drawDensity));
+['t-k','t-c1','t-c2','t-sp'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{if(!animRunning)drawTemporal(animT);}));
+['p-k','p-sig','p-sp'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{if(!packetRunning)drawPacket(packetT);}));
+
+window.addEventListener('resize',renderAll);
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', renderAll);
+
+// Iniciar con la primera pestaña
+drawWave();
+</script>
+</body>
+</html>
