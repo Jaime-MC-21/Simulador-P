@@ -146,8 +146,13 @@ button.action-btn.primary:hover { background: var(--accent-hover); }
 
 <div class="app-container">
   <div class="header">
-    <h1>Mecánica Cuántica: Partícula Libre</h1>
-    <p>Simulación para V(x) = 0 sobre el eje x</p>
+    <h1>Ecuación de Schrödinger Simulación</h1>
+    <p>(Grupo 3)</p>
+	<p>Gonzales Morales Beckham Luis - 22140318</p>
+	<p>Leiva Ramirez Sean Jeremy - 22140333</p>
+	<p>Melo Gutierrez Dan Caleb - 22140354</p>
+	<p>Muguruza Cabanillas Jaime Alfredo -  23140423</p>
+	<p>Solimano Cure Franco David - 22140116</p>
   </div>
 
   <div class="tabs-container" role="tablist">
@@ -164,6 +169,10 @@ button.action-btn.primary:hover { background: var(--accent-hover); }
         <div class="ctrl-item">
           <label class="ctrl-header" for="w-k">Número de onda (k) <span class="ctrl-val" id="w-k-v">2.0</span></label>
           <input type="range" min="0.5" max="6" step="0.1" value="2.0" id="w-k" aria-label="Ajustar número de onda k">
+        </div>
+        <div class="ctrl-item">
+          <label class="ctrl-header" for="w-m">Masa (m) <span class="ctrl-val" id="w-m-v">1.0</span></label>
+          <input type="range" min="0.5" max="5" step="0.5" value="1.0" id="w-m" aria-label="Ajustar masa de la partícula">
         </div>
         <div class="ctrl-item">
           <label class="ctrl-header" for="w-c1">Coeficiente C₁ (Real) <span class="ctrl-val" id="w-c1-v">1.0</span></label>
@@ -237,6 +246,10 @@ button.action-btn.primary:hover { background: var(--accent-hover); }
           <input type="range" min="0.5" max="6" step="0.1" value="2.0" id="t-k" aria-label="Ajustar número de onda k">
         </div>
         <div class="ctrl-item">
+          <label class="ctrl-header" for="t-m">Masa (m) <span class="ctrl-val" id="t-m-v">1.0</span></label>
+          <input type="range" min="0.5" max="5" step="0.5" value="1.0" id="t-m" aria-label="Ajustar masa de la partícula">
+        </div>
+        <div class="ctrl-item">
           <label class="ctrl-header" for="t-c1">C₁ (Real) <span class="ctrl-val" id="t-c1-v">1.0</span></label>
           <input type="range" min="-1" max="1" step="0.1" value="1" id="t-c1" aria-label="Ajustar coeficiente real C1">
         </div>
@@ -283,6 +296,10 @@ button.action-btn.primary:hover { background: var(--accent-hover); }
         <div class="ctrl-item">
           <label class="ctrl-header" for="p-k">Momento central (k₀) <span class="ctrl-val" id="p-k-v">4.0</span></label>
           <input type="range" min="1" max="8" step="0.5" value="4.0" id="p-k" aria-label="Ajustar momento central">
+        </div>
+        <div class="ctrl-item">
+          <label class="ctrl-header" for="p-m">Masa (m) <span class="ctrl-val" id="p-m-v">1.0</span></label>
+          <input type="range" min="0.5" max="5" step="0.5" value="1.0" id="p-m" aria-label="Ajustar masa de la partícula">
         </div>
         <div class="ctrl-item">
           <label class="ctrl-header" for="p-sig">Dispersión Inicial (σ) <span class="ctrl-val" id="p-sig-v">1.0</span></label>
@@ -344,6 +361,9 @@ function syncInputs(sourceId, targetIds, val) {
 function setupSync() {
   const syncGroups = [
     { source: 'w-k', targets: ['d-k', 't-k'] },
+    { source: 'w-m', targets: ['t-m', 'p-m'] },
+    { source: 't-m', targets: ['w-m', 'p-m'] },
+    { source: 'p-m', targets: ['w-m', 't-m'] },
     { source: 'w-c1', targets: ['d-c1', 't-c1'] },
     { source: 'w-c2', targets: ['d-c2', 't-c2'] },
     { source: 'd-k', targets: ['w-k', 't-k'] },
@@ -433,14 +453,15 @@ function drawInfiniteAxes(ctx, cx0, cw, cy0, ch, T) {
 // ════ TAB 0: ESPACIAL ════
 function drawWave(){
   const k = +document.getElementById('w-k').value;
+  const m = +document.getElementById('w-m').value;
   const c1 = +document.getElementById('w-c1').value;
   const c2 = +document.getElementById('w-c2').value;
   
   document.getElementById('w-k-v').textContent = k.toFixed(1);
+  document.getElementById('w-m-v').textContent = m.toFixed(1);
   document.getElementById('w-c1-v').textContent = c1.toFixed(1);
   document.getElementById('w-c2-v').textContent = c2.toFixed(1);
   
-  const m = 1; 
   const E = (k*k)/(2*m);
   document.getElementById('w-en').textContent = E.toFixed(2) + ' u.a.';
   document.getElementById('w-p').textContent = k.toFixed(2) + ' ℏ';
@@ -543,12 +564,13 @@ function drawDensity(){
 // ════ TAB 2: EVOLUCIÓN ESTADO PURO ════
 function drawTemporal(t) {
   const k = +document.getElementById('t-k').value;
+  const m = +document.getElementById('t-m').value;
   const c1 = +document.getElementById('t-c1').value;
   const c2 = +document.getElementById('t-c2').value;
   
   document.getElementById('t-tv').textContent = t.toFixed(2);
+  document.getElementById('t-m-v').textContent = m.toFixed(1);
   
-  const m = 1;
   const omega = (k*k)/(2*m); 
   
   const {ctx, w, h} = initCvs('tc', 280);
@@ -592,17 +614,19 @@ let lastPacketConfig = "";
 
 function drawPacket(t) {
   const k0 = +document.getElementById('p-k').value;
+  const m = +document.getElementById('p-m').value;
   const sig = +document.getElementById('p-sig').value;
   
   document.getElementById('p-k-v').textContent = k0.toFixed(1);
+  document.getElementById('p-m-v').textContent = m.toFixed(1);
   document.getElementById('p-sig-v').textContent = sig.toFixed(1);
   document.getElementById('p-tv').textContent = t.toFixed(2);
   
-  const m = 1;
   const L = 20; 
   const N_modes = 150;
   
-  const configStr = `${k0}-${sig}`;
+  // Incluimos 'm' en el string de caché para recalcular los modos si la masa cambia
+  const configStr = `${k0}-${sig}-${m}`;
   if(lastPacketConfig !== configStr || !modesCache) {
     modesCache = [];
     let norm = 0;
@@ -762,10 +786,10 @@ document.querySelectorAll('input[type=range]').forEach(input => {
   });
 });
 
-['w-k','w-c1','w-c2'].forEach(id => document.getElementById(id).addEventListener('input', drawWave));
+['w-k','w-m','w-c1','w-c2'].forEach(id => document.getElementById(id).addEventListener('input', drawWave));
 ['d-k','d-c1','d-c2'].forEach(id => document.getElementById(id).addEventListener('input', drawDensity));
-['t-k','t-c1','t-c2','t-sp'].forEach(id => document.getElementById(id).addEventListener('input', () => { if(!animRunning) drawTemporal(animT); }));
-['p-k','p-sig','p-sp'].forEach(id => document.getElementById(id).addEventListener('input', () => { if(!packetRunning) drawPacket(packetT); }));
+['t-k','t-m','t-c1','t-c2','t-sp'].forEach(id => document.getElementById(id).addEventListener('input', () => { if(!animRunning) drawTemporal(animT); }));
+['p-k','p-m','p-sig','p-sp'].forEach(id => document.getElementById(id).addEventListener('input', () => { if(!packetRunning) drawPacket(packetT); }));
 
 // Manejo seguro de redimensionamiento (debounce simple para evitar repintados bruscos)
 let resizeTimer;
