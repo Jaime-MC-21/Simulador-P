@@ -734,6 +734,22 @@ function renderAll(){
 
 // Event Listeners
 setupSync();
+
+// Actualizar dinámicamente los textos numéricos de las barras al deslizarlas
+document.querySelectorAll('input[type=range]').forEach(input => {
+  input.addEventListener('input', (e) => {
+    const valSpan = document.getElementById(e.target.id + '-v');
+    if (valSpan) {
+      // Si es una barra de velocidad (sp), añadir la '×'
+      if (e.target.id.endsWith('-sp')) {
+        valSpan.textContent = Number(e.target.value).toFixed(1) + '×';
+      } else {
+        valSpan.textContent = Number(e.target.value).toFixed(1);
+      }
+    }
+  });
+});
+
 ['w-k','w-c1','w-c2'].forEach(id=>document.getElementById(id).addEventListener('input',drawWave));
 ['d-k','d-c1','d-c2'].forEach(id=>document.getElementById(id).addEventListener('input',drawDensity));
 ['t-k','t-c1','t-c2','t-sp'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{if(!animRunning)drawTemporal(animT);}));
