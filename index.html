@@ -358,10 +358,11 @@ function switchTab(i) {
   document.querySelectorAll('.section').forEach((s,j)=>s.classList.toggle('active',j===i));
   currentTab = i;
   
-  if(i===2 && !animId) startAnim(2);
-  else if(i===3 && !animId) startAnim(3);
+  // SOLUCIÓN: Detener siempre el bucle del tab anterior antes de arrancar el nuevo
+  stopAnim();
   
-  if(i!==2 && i!==3) stopAnim();
+  if(i===2 && animRunning) startAnim(2);
+  else if(i===3 && packetRunning) startAnim(3);
   
   setTimeout(renderAll, 10);
 }
