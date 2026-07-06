@@ -492,7 +492,7 @@ function drawDensity(){
 
   const N=400;
   const L = 10;
-  const maxVal = 2.0; // max posible |c1|^2 + |c2|^2 es 2
+  const maxVal = 1.0; // FIX: El máximo valor de |c1*cos|^2 + |c2*sin|^2 con c1,c2 en [-1, 1] es exactamente 1.0
   
   ctx.beginPath(); ctx.strokeStyle=T.green; ctx.lineWidth=3;
   ctx.fillStyle=T.green; ctx.globalAlpha=0.15;
@@ -630,6 +630,8 @@ function drawPacket(t) {
   let maxDens = 0;
   const ptsRe = [], ptsDens = [];
   
+  const x0 = -L/2; // FIX: Desplazamiento inicial para que el paquete nazca a la izquierda y tenga más recorrido
+  
   // Calcular campo
   for(let i=0;i<=N;i++){
     const x_px = cx0 + (i/N)*cw;
@@ -638,7 +640,7 @@ function drawPacket(t) {
     let re = 0, im = 0;
     for(let j=0; j<modesCache.length; j++){
       const M = modesCache[j];
-      const phase = M.k * x_phys - M.w * t;
+      const phase = M.k * (x_phys - x0) - M.w * t; // Se aplica x0 al desfase
       re += M.A * Math.cos(phase);
       im += M.A * Math.sin(phase);
     }
@@ -646,8 +648,9 @@ function drawPacket(t) {
     const dens = Math.sqrt(re*re + im*im); // Envolvente visual
     if(dens > maxDens) maxDens = dens;
     
-    ptsRe.push({x: x_px, y: cy0 - re * ch * 0.8});
-    ptsDens.push({x: x_px, y: cy0 - dens * ch * 0.8});
+    // FIX: Escala corregida a 0.45 para que el pico inicial no desborde el canvas por arriba
+    ptsRe.push({x: x_px, y: cy0 - re * ch * 0.45});
+    ptsDens.push({x: x_px, y: cy0 - dens * ch * 0.45});
   }
   
   // Dibujar Envolvente
@@ -660,9 +663,9 @@ function drawPacket(t) {
   ptsRe.forEach((p,i)=> i===0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y));
   ctx.stroke();
   
-  // Centro aproximado de gravedad visual x = v_g * t (v_g = k0/m)
+  // Centro aproximado de gravedad visual x = x0 + v_g * t
   const vg = k0/m;
-  const x_centro = vg * t;
+  const x_centro = x0 + vg * t;
   const x_centro_px = cx0 + ((x_centro + L)/(2*L)) * cw;
   
   document.getElementById('p-pos').textContent = x_centro.toFixed(1) + ' a.u.';
